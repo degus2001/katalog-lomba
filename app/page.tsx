@@ -368,7 +368,13 @@ Triple B Living – Better Room, Better Life, Better Day.`;
   };
 
   const generatePin = () => `${Math.floor(1000 + Math.random() * 9000)}#`;
-  const cleanPhone = (val: string) => val.trim().replace(/[^0-9]/g, '');
+  const cleanPhone = (val: string) => {
+    let cleaned = val.trim().replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('62')) {
+      cleaned = '0' + cleaned.slice(2);
+    }
+    return cleaned;
+  };
 
   // ============================================================================
   // 1. FLOW PENGGUNA: BOOKING KAMAR
@@ -718,6 +724,15 @@ Triple B Living – Better Room, Better Life, Better Day.`;
     e.preventDefault();
     const clean = cleanPhone(phoneInput);
     if (!clean) return;
+
+    const hasMatchingRoom = rooms.some((r) => r.phone && cleanPhone(r.phone) === clean);
+    const hasMatchingBooking = bookings.some((b) => b.phone && cleanPhone(b.phone) === clean);
+
+    if (!hasMatchingRoom && !hasMatchingBooking) {
+      showToast('Nomor WhatsApp belum terdaftar di unit kamar maupun pesanan.');
+      return;
+    }
+
     setLoggedInPhone(clean);
     if (typeof window !== 'undefined') {
       localStorage.setItem('tripleb_tenant_phone', clean);
