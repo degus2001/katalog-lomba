@@ -260,12 +260,12 @@ export async function approveBookingAction(bookingId: string) {
     const now = new Date().toISOString();
 
     // 1. Update Booking status -> 'approved'
+    // Catatan: Gunakan payload yang kompatibel dengan skema tabel bookings
     const { error: updateBookingErr } = await supabase
       .from('bookings')
       .update({
         status: 'approved',
         key_handed_over: true,
-        approved_at: now,
       })
       .eq('id', bookingId);
 
@@ -287,7 +287,15 @@ export async function approveBookingAction(bookingId: string) {
       .eq('number', booking.room_number);
 
     if (updateRoomErr) {
-      return { success: false, error: updateRoomErr.message };
+      // Kompensasi Rollback jika pembaruan kamar gagal
+      await supabase
+        .from('bookings')
+        .update({
+          status: 'pending_approval',
+          key_handed_over: false,
+        })
+        .eq('id', bookingId);
+      return { success: false, error: `Gagal memperbarui kamar: ${updateRoomErr.message}` };
     }
 
     return {

@@ -527,12 +527,14 @@ Triple B Living – Better Room, Better Life, Better Day.`;
       if (!res.success) {
         showToast(`Peringatan: ${res.error}`);
         // Refresh data untuk mengembalikan konsistensi state
-        fetchFromDatabase();
+        await fetchFromDatabase();
       } else {
         showToast(`Pesanan Kamar ${booking.roomNumber} DISETUJUI. Kamar resmi TERISI & kunci sah diserahkan!`);
+        await fetchFromDatabase();
       }
     } catch {
       showToast('Gagal sinkron approval ke server.');
+      await fetchFromDatabase();
     } finally {
       setActionInProgressId(null);
     }
