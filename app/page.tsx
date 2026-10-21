@@ -2128,5 +2128,3 @@ Triple B Living – Better Room, Better Life, Better Day.`;
     </div>
   );
 }
-
-}
